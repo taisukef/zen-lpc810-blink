@@ -1,0 +1,49 @@
+const SYSAHBCLKCTRL: u32 = 0x40048080;
+const USE_DEVICE: u32 = 0b0011011001; // WKT:off, SCT:off, SWT, GPIO, I2C:off, FLASH, FLASHREG, RAM:off, ROM:off, SYS
+const FLASHCFG: u32 = 0x40040010;
+const PINENABLE0: u32 = 0x4000C1C0;
+const PINENABLE0_DATA: u32 = 0xFFFFFFBF;
+const GPIO_DIR0: u32 = 0xA0002000;
+const GPIO_NOT0: u32 = 0xA0002300;
+const GPIO_SET0: u32 = 0xA0002200;
+const GPIO_CLR0: u32 = 0xA0002280;
+const WAIT_CNT: u32 = 400000;
+
+export fn reset() noreturn {
+    var r0 = @intToPtr(*mut u32, SYSAHBCLKCTRL);
+    r0.* = USE_DEVICE;
+
+    r0 = @intToPtr(*mut u32, FLASHCFG);
+    r0.* &= 0b11; // flash no wait: set 0b00
+
+    r0 = @intToPtr(*mut u32, PINENABLE0);
+    r0.* = PINENABLE0_DATA;
+    
+    r0 = @intToPtr(*mut u32, GPIO_DIR0);
+    r0.* = 0b1100; // PIO0_2 and PIO0_3
+
+    while (true) {
+        // LED 1
+        {
+            var waitcnt = WAIT_CNT;
+            while (waitcnt > 0) {
+                var gpio = @intToPtr(*mut volatile u32, GPIO_SET0);
+                gpio.* = 0b0100; // toggle PIO0_2, GND PIO0_3
+                waitcnt -= 1;
+            }
+        }
+        // LED 0
+        {
+            var waitcnt = WAIT_CNT;
+            while (waitcnt > 0) {
+                var gpio = @intToPtr(*mut volatile u32, GPIO_CLR0);
+                gpio.* = 0b0100; // toggle PIO0_2, GND PIO0_3
+                waitcnt -= 1;
+            }
+        }
+    }
+}
+
+export const RESET_VECTOR: fn () callconv(.C) noreturn linksection(".vector_table.reset_vector") = reset;
+export const DUMMY linksection(".dummy") = [5]u32 { 0, 0, 0, 0, 0 };
+export const VALID_CODE: u32 linksection(".valid_code") = 0xEFFFFBDF; // 0x100000000-0x10000400-0x21
