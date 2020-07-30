@@ -26,57 +26,40 @@ reset:
 	ldr	r0, .LCPI0_0
 	movs	r1, #217
 	str	r1, [r0]
-	ldr	r0, .LCPI0_1
-	ldr	r1, [r0]
-	movs	r2, #3
-	ands	r2, r1
-	str	r2, [r0]
 	movs	r0, #64
 	mvns	r0, r0
-	ldr	r1, .LCPI0_2
+	ldr	r1, .LCPI0_1
 	str	r0, [r1]
-	ldr	r0, .LCPI0_3
+	ldr	r0, .LCPI0_2
 	movs	r1, #12
 	str	r1, [r0]
-	ldr	r0, .LCPI0_4
-	ldr	r1, .LCPI0_6
-	ldr	r2, .LCPI0_5
+	ldr	r0, .LCPI0_3
+	ldr	r1, .LCPI0_4
 .LBB0_1:
-	mov	r3, r0
-	cmp	r3, #0
-	mov	r4, r0
-	beq	.LBB0_4
+	movs	r2, #4
+	str	r2, [r0]
+	mov	r2, r1
+	cmp	r2, #0
+	beq	.LBB0_1
 .LBB0_2:
-	movs	r4, #4
-	str	r4, [r2]
-	subs	r3, r3, #1
-	cmp	r3, #0
-	mov	r4, r0
+	@APP
+	nop
+	@NO_APP
+	subs	r2, r2, #1
+	cmp	r2, #0
 	bne	.LBB0_2
-	b	.LBB0_4
-.LBB0_3:
-	movs	r3, #4
-	str	r3, [r1]
-	subs	r4, r4, #1
-.LBB0_4:
-	cmp	r4, #0
-	bne	.LBB0_3
 	b	.LBB0_1
 	.p2align	2
 .LCPI0_0:
 	.long	1074036864
 .LCPI0_1:
-	.long	1074003984
-.LCPI0_2:
 	.long	1073791424
-.LCPI0_3:
+.LCPI0_2:
 	.long	2684362752
+.LCPI0_3:
+	.long	2684363520
 .LCPI0_4:
 	.long	400000
-.LCPI0_5:
-	.long	2684363264
-.LCPI0_6:
-	.long	2684363392
 .Lfunc_end0:
 	.size	reset, .Lfunc_end0-reset
 	.cantunwind
